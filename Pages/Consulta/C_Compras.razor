@@ -1,0 +1,92 @@
+@page "/ComprasDetalle"
+
+@inject MyClassBLL myClassBLL;
+
+<EditForm Model="lista" >
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3>Consulta de Personas</h3>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+                    <select class="form-control col-2" @bind="Filtro">
+                        <option value="1">ProductoId</option>
+                        <option value="2">CompraId</option>
+                        <option value="3">CompraDetalleId</option>
+                    </select>
+
+                    <div class="flex-fill mx-2">
+                        <label>Criterio</label>
+                        <input type="text" class="form-control" @bind="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-warning" @onclick="Buscar">
+                        <i class="oi oi-magnifying-glass mr-2" /> Buscar
+                    </button>
+                </div>
+
+            </form>
+        </div>
+        <table class="table table-secondary">
+            <thead class="thead-dark">
+                <tr class="table-info">
+                    <th>CompraDetalleId</th>
+                    <th>CompraId</th>
+                    <th>ProductoId</th>
+                    <th>Descripcion</th>
+                    <th>Cantidad</th>
+                    <th>Costo</th>
+                    <th>Importe</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in lista)
+                {
+                    <tr>
+                        <td>@detalle.CompraDetalleId</td>
+                        <td>@detalle.CompraId</td>
+                        <td>@detalle.ProductoId</td>
+                        <td>@detalle.Descripcion</td>
+                        <td>@detalle.Cantidad</td>
+                        <td>@detalle.Costo</td>
+                        <td>@detalle.Importe</td>
+                        
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@code{
+    [Parameter]
+    public string Filtro { get; set; }
+    public string Criterio { get; set; }
+    
+    public List<Compras> listaa { get; set; } = new List<Compras>();
+    public List<ComprasDetalle> lista { get; set; } = new List<ComprasDetalle>();
+        private void Buscar()
+    {
+        if (Criterio != null)
+        {
+            switch (Filtro)
+            {
+                case "1":
+                    lista = myClassBLL.GetListDetalle(t => t.ProductoId == int.Parse(Criterio));
+                    break;
+
+                case "2":
+                    lista = myClassBLL.GetListDetalle(t => t.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                    break;
+
+            }
+        }
+        else
+        {
+            lista = myClassBLL.GetListDetalle(t => true);
+            listaa = myClassBLL.GetList(t => true);
+        }
+    }
+}

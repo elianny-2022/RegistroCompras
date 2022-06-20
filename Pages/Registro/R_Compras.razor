@@ -1,0 +1,261 @@
+@page "/Compra"
+@page "/Compra/{CompraId:int}"
+
+@inject MyClassBLL myClassBLL
+
+<EditForm Model="compra" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator/>
+    <div class="container-md">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="card-title">Registro de Compra</h3>
+            </div>
+            <div class="card-body">
+                @* Buscar *@
+                <div class=" row input-group d-flex align-items-end">   
+                    <div class="form-row">
+                        <label>Compra Id</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="compra.CompraId" style="Height: 40px;"  class="form-control"/>
+                            <div class="input-group-append col">
+                                <button type="button" class="btn btn-success input-group-text "
+                                    @onclick="Buscar"><span class="oi oi-magnifying-glass"></span>
+                                    </button>
+                                    
+                            </div>
+                            @*Fecha*@
+                            <div class="col">
+                                <label>Fecha</label>
+                                <InputDate class="form-control" @bind-Value="compra.Fecha" />
+                                <ValidationMessage For="@(() => compra.Fecha)" />
+                            </div>  
+                        </div>
+                    </div>
+                </div> 
+             </div>
+                <br>
+                 @* Compra detalle *@
+                <div class="card">
+
+                    <div class="card-header">
+                    </div>
+
+                    <form>
+
+                        <div class=" row input-group d-flex align-items-end">
+
+                            @* ProductoId *@
+                            <div class=" col">
+                                <label>ProductoId</label>
+                               <div class="form-group col">
+                            <InputNumber @bind-Value="ProductoId"  class="form-control"/>
+                            <ValidationMessage For="@(() => ProductoId)"/>
+                            <div class="input-group-append col">
+                                <button type="button" class="btn btn-success input-group-text "
+                                    @onclick="Buscar"><span class="oi oi-magnifying-glass"></span>
+                                    </button>
+                               
+                            
+                            </div>
+                            </div>
+                            </div>
+                            @* Descripcion *@
+                           <div class="form-group col">
+                        <label>Descripcion</label>
+                        <InputText class="form-control" @bind-Value="Descripcion" placeholder="Descripcion"/>
+                        <ValidationMessage For="@(() => Descripcion)" />
+                    </div>
+
+                            @* Cantidad *@
+                            <div class="form-group col">
+                                <label>Cantidad</label>
+                                <InputNumber class="form-control" @bind-Value="Cantidad" />
+                                <ValidationMessage For="@(() => Cantidad)" />
+                                @if(Cantidad < 0)
+                                {
+                                    <label>
+                                        La Cantidad No puede ser menor a cero
+                                    </label>
+                                }
+                            </div>
+
+                            @* Costo *@
+                            <div class="form-group col">
+                                <label>Costo</label>
+                                <InputNumber class="form-control" @bind-Value="Costo" />
+                                <ValidationMessage For="@(() => Costo)" />
+                                @if(Costo < 0)
+                                {
+                                    <label>
+                                       El costo no puede ser menor a 0
+                                    </label>
+                                }
+                            </div>
+                            @* Importe *@
+                            <div class="form-group col">
+                                <label>Importe</label>
+                                <InputNumber class="form-control" @bind-Value="Importe" />
+                                <ValidationMessage For="@(() => Importe)" />
+                                @if(Importe < 0)
+                                {
+                                    <label>
+                                        El importe no puede ser menor a cero
+                                    </label>
+                                }
+                            </div>
+                            @* Boton de agregar detalle*@
+                             <div class="input-group-append col">
+                            <button type="button" class="btn btn-success col" @onclick="AgregarDetalle">
+                                <span class="oi oi-plus"></span>
+                            </button>
+                            </div>
+
+                        </div>
+                        
+                        <br>
+
+                        <table class="table table-secondary">
+                            <thead class="thead-dark">
+                                <tr class="table-info">
+                                    <th>ProductoId</th>
+                                    <td>Descripcion</td>
+                                    <th>Cantidad</th>
+                                    <th>Costo</th>
+                                    <th>Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in compra.Detalle)
+                                {
+                                    <tr>
+                                        <td>@detalle.ProductoId</td>
+                                        <td>@detalle.Descripcion</td>
+                                        <td>@detalle.Cantidad</td>
+                                        <td>RD$ @detalle.Costo</td>
+                                        <td>RD$ @detalle.Importe</td>
+                                        <td><span class="btn btn-sm btn-outline-primary oi oi-ban" href="#"  @onclick=" (() => RemoverFila(detalle)) "> Remover</span></td>
+                                    </tr>
+                                }
+                              
+                            </tbody>
+                        </table>  
+                        @*Total*@
+                         <div class="row">
+                        <div class="form-control-right col-md-2">
+                        <label>Total(Importe)</label>
+                        <span class="form-control">@Total</span>
+                    </div>   
+                    </div>             
+                </form>                   
+                   
+              </div>
+            <div class="card-footer">
+                @* Botones *@
+                <div class="form-group text-center" display: inline-block>
+                    
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
+                        <span class="oi oi-plus" >Nuevo</span>
+                    </button>
+                    
+                    <button type="submit" class="btn btn-lg btn-success">
+                        <span class="oi oi-folder" >Guardar</span>
+                    </button>
+                    
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
+                        <span class="oi oi-trash" >Eliminar</span>
+                    </button>
+
+                </div>
+            </div>
+
+                </div>
+            </div>
+</EditForm>
+
+@code{
+    [Parameter]
+    public int CompraId { get; set; }
+    public Compras compra { get; set; } = new Compras();
+    public int ProductoId { get; set; }
+    public String? Descripcion { get; set; }
+    public double Importe { get; set; }
+    public int Cantidad { get; set; }
+    public double Costo { get; set; }
+    public double Total { get; set; }
+    
+
+    protected override void OnInitialized()
+    {
+        compra.CompraId = CompraId;
+        Buscar();
+    }
+
+    public void Buscar()
+    {
+
+        if (this.compra.CompraId > 0)
+        {
+            Compras encontrado = myClassBLL.Buscar(this.compra.CompraId);
+            
+            if (encontrado != null)
+            {
+                this.compra = encontrado;
+            }
+            else
+            {
+                //toastService.ShowError("No se encontró la compra");
+            }
+        }
+        
+    }
+    public void Nuevo()
+    {
+        compra = new Compras();
+    }
+
+    public void NuevoDetalle()
+    {
+       
+        Descripcion = "";
+        Importe = 0;
+        Cantidad = 0;
+        Costo = 0;
+    }
+    public void Guardar()
+    {
+       
+
+        if (myClassBLL.Guardar(compra))
+        {
+            //toastService.ShowInfo("Se guardó exitosamente");
+        }
+        else{
+
+        }
+            //toastService.ShowError("No se pudo guardar.");
+    }
+    public void Eliminar()
+    {
+        if (myClassBLL.Eliminar(compra.CompraId))
+        {
+            Nuevo();
+            //toastService.ShowSuccess("Eliminación exitosa");
+        }
+        else
+        {
+            //toastService.ShowError("Eliminación fallida");
+        }
+    }
+    public void AgregarDetalle()
+    {
+        this.compra.Detalle.Add(new ComprasDetalle( Descripcion, Costo, Cantidad, Importe));
+      //  Total += Importe;
+      Total = compra.Detalle.Sum( c => c.Importe);
+        NuevoDetalle();
+    }
+    private void RemoverFila(ComprasDetalle item)
+    {
+        this.compra.Detalle.Remove(item);
+        Total -= item.Importe;
+    }
+}
